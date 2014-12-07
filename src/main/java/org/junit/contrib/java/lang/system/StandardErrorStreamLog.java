@@ -1,12 +1,12 @@
 package org.junit.contrib.java.lang.system;
 
-import static java.lang.System.err;
-import static java.lang.System.setErr;
-import static org.junit.contrib.java.lang.system.LogMode.LOG_AND_WRITE_TO_STREAM;
+import org.junit.contrib.java.lang.system.internal.PrintStreamLog;
 
 import java.io.PrintStream;
 
-import org.junit.contrib.java.lang.system.internal.PrintStreamLog;
+import static java.lang.System.err;
+import static java.lang.System.setErr;
+import static org.junit.contrib.java.lang.system.LogMode.LOG_AND_WRITE_TO_STREAM;
 
 /**
  * The {@code StandardErrorStreamLog} records writes to the standard error
@@ -64,7 +64,7 @@ public class StandardErrorStreamLog extends PrintStreamLog {
 	 * @param mode how the rule handles writes to the standard error stream.
 	 * @throws java.lang.NullPointerException if {@code mode} is null.
 	 */
-	public StandardErrorStreamLog(LogMode mode) {
+	public StandardErrorStreamLog(LogModeBehavior mode) {
 		super(mode);
 	}
 

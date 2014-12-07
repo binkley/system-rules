@@ -1,12 +1,12 @@
 package org.junit.contrib.java.lang.system;
 
-import static java.lang.System.out;
-import static java.lang.System.setOut;
-import static org.junit.contrib.java.lang.system.LogMode.LOG_AND_WRITE_TO_STREAM;
+import org.junit.contrib.java.lang.system.internal.PrintStreamLog;
 
 import java.io.PrintStream;
 
-import org.junit.contrib.java.lang.system.internal.PrintStreamLog;
+import static java.lang.System.out;
+import static java.lang.System.setOut;
+import static org.junit.contrib.java.lang.system.LogMode.LOG_AND_WRITE_TO_STREAM;
 
 /**
  * The {@code StandardOutputStreamLog} records writes to the standard output
@@ -63,7 +63,7 @@ public class StandardOutputStreamLog extends PrintStreamLog {
 	 * @param mode how the rule handles writes to the standard output stream.
 	 * @throws java.lang.NullPointerException if {@code mode} is null.
 	 */
-	public StandardOutputStreamLog(LogMode mode) {
+	public StandardOutputStreamLog(LogModeBehavior mode) {
 		super(mode);
 	}
 

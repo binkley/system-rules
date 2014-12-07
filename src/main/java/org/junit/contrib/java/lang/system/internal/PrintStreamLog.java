@@ -1,23 +1,22 @@
 package org.junit.contrib.java.lang.system.internal;
 
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
-
-import org.apache.commons.io.output.TeeOutputStream;
-import org.junit.contrib.java.lang.system.LogMode;
+import org.junit.contrib.java.lang.system.LogModeBehavior;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
-public abstract class PrintStreamLog extends TestWatcher {
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+
+public abstract class PrintStreamLog
+	extends TestWatcher {
 	private static final boolean NO_AUTO_FLUSH = false;
 	private static final String ENCODING = "UTF-8";
 	private final ByteArrayOutputStream log = new ByteArrayOutputStream();
-	private final LogMode mode;
+	private final LogModeBehavior mode;
 	private PrintStream originalStream;
 
-	protected PrintStreamLog(LogMode mode) {
+	protected PrintStreamLog(LogModeBehavior mode) {
 		if (mode == null)
 			throw new NullPointerException("The LogMode is missing.");
 		this.mode = mode;
@@ -27,8 +26,8 @@ public abstract class PrintStreamLog extends TestWatcher {
 	protected void starting(Description description) {
 		try {
 			originalStream = getOriginalStream();
-			PrintStream wrappedStream = new PrintStream(getNewStream(),
-					NO_AUTO_FLUSH, ENCODING);
+			PrintStream wrappedStream = new PrintStream(mode.newStream(originalStream, log),
+				NO_AUTO_FLUSH, ENCODING);
 			setStream(wrappedStream);
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException(e); // JRE missing UTF-8
@@ -37,27 +36,13 @@ public abstract class PrintStreamLog extends TestWatcher {
 
 	@Override
 	protected void failed(Throwable e, Description description) {
-		// Only log-on-failure mode needs to print; the others already handle this
-		if (mode == LogMode.LOG_AND_WRITE_TO_STREAM_ON_FAILURE_ONLY)
-			originalStream.print(getLog());
+		mode.failed(originalStream, log);
 	}
 
 	@Override
 	protected void finished(Description description) {
 		setStream(originalStream);
-	}
-
-	private OutputStream getNewStream() {
-		switch (mode) {
-			case LOG_AND_WRITE_TO_STREAM:
-				return new TeeOutputStream(originalStream, log);
-			case LOG_ONLY:
-			case LOG_AND_WRITE_TO_STREAM_ON_FAILURE_ONLY:
-				return log;
-			default:
-				throw new IllegalArgumentException("The LogMode " + mode
-					+ " is not supported");
-		}
+		mode.close();
 	}
 
 	protected abstract PrintStream getOriginalStream();
